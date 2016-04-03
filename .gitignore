@@ -1,0 +1,4 @@
+/nbproject/private/
+.vagrant
+/.idea
+*.pyc

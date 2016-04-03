@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block content %}
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{% url 'index' %}">Auto Google Search</a>
+        </div>
+
+        <div class="navbar-default sidebar" role="navigation">
+            <div class="sidebar-nav navbar-collapse">
+
+                <ul class="nav" id="side-menu">
+                    <li class="sidebar-search">
+                        <form method="POST" action="{% url 'index' %}" role="search" id="search-form">
+                            {% csrf_token %}
+                            <div class="input-group custom-search-form">
+                                <input type="text" class="form-control" placeholder="Search..." name="search_term">
+                                <span class="input-group-btn">
+                                <button class="btn btn-default" type="submit">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </span>
+                            </div>
+
+                            {{ form.search_term.errors }}
+
+                        </form>
+                        <!-- /input-group -->
+                    </li>
+                    {% for search_record in formatted_search_history %}
+                    <li>
+                        <a href="{{ search_record.url }}" {% if search_record.is_selected %} class="active" {% endif %}>
+                            {{ search_record.search_term }}
+                            <sub class="pull-right">{{ search_record.search_timestamp }}</sub>
+                        </a>
+                    </li>
+                    {% endfor %}
+
+                </ul>
+            </div>
+            <!-- /.sidebar-collapse -->
+        </div>
+        <!-- /.navbar-static-side -->
+    </nav>
+
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">{{ formatted_search_record_data.search_term }}</h1>
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+        <div class="panel-group" id="accordion">
+
+            {% for formatted_result in formatted_search_record_data.formatted_results %}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{ formatted_result.result_number }}">{{ formatted_result.result_number }}) {{ formatted_result.title }}</a>
+                    </h4>
+                </div>
+                <div id="collapse{{ formatted_result.result_number }}" class="panel-collapse collapse {% if formatted_result.result_number == 1 %} in {% endif %}">
+                    <div class="panel-body">
+                        <a href="{{ formatted_result.url }}"> {{ formatted_result.url }} </a>
+                        <p>
+                            <div class="list-group">
+                                {% for extracted_data in formatted_result.formatted_extracted_info %}
+                                <a class="list-group-item">
+                                    <h5 class="list-group-item-heading"> {{ extracted_data.extracted_info_key }} </h5>
+                                    <p class="list-group-item-text"> {{ extracted_data.extracted_info_value }} </p>
+                                </a>
+                                {% endfor %}
+                            </div>
+
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+
+    </div>
+    <!-- /#page-wrapper -->
+{% endblock %}
